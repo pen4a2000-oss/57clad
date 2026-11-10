@@ -3,6 +3,7 @@ const { chromium } = require('playwright');
 const { spawn } = require('child_process');
 const path = require('path'), fs = require('fs');
 const out = process.argv[2] || 'video.mp4', FPS = +(process.argv[3] || 30), NW = +(process.argv[4] || 4);
+const F0 = +(process.argv[5] || 0), F1a = process.argv[6];
 async function worker(b, i, f0, f1, file) {
   const p = await b.newPage({ viewport: { width: 1080, height: 1920 } });
   p.on('pageerror', e => console.error('pageerror', e.message));
@@ -21,9 +22,9 @@ async function worker(b, i, f0, f1, file) {
   const b = await chromium.launch();
   const pg = await b.newPage(); await pg.goto('file://' + path.resolve(__dirname, 'index.html'));
   const N = Math.round(await pg.evaluate(() => DURATION) * FPS); await pg.close();
-  const tmp = path.resolve(path.dirname(out), '.parts'); fs.mkdirSync(tmp, { recursive: true });
-  const per = Math.ceil(N / NW), files = [];
-  await Promise.all(Array.from({ length: NW }, (_, i) => { const f = path.join(tmp, `p${i}.mp4`); files.push(f); return worker(b, i, i * per, Math.min(N, (i + 1) * per), f); }));
+  const tmp = path.resolve(path.dirname(out), '.parts_' + path.basename(out)); fs.mkdirSync(tmp, { recursive: true });
+  const N1 = F1a ? +F1a : N; const per = Math.ceil((N1 - F0) / NW), files = [];
+  await Promise.all(Array.from({ length: NW }, (_, i) => { const f = path.join(tmp, `p${i}.mp4`); files.push(f); return worker(b, i, F0 + i * per, Math.min(N1, F0 + (i + 1) * per), f); }));
   await b.close();
   fs.writeFileSync(path.join(tmp, 'list.txt'), files.map(f => `file '${f}'`).join('\n'));
   await new Promise(r => spawn('ffmpeg', ['-y', '-v', 'error', '-f', 'concat', '-safe', '0', '-i', path.join(tmp, 'list.txt'), '-c', 'copy', out], { stdio: 'inherit' }).on('close', r));

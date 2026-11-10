@@ -3,3 +3,6 @@ output/_test.mp4
 output/bed.wav
 episode1/voice/
 __pycache__/
+output/parts/
+output/.parts*/
+output/render_log.txt
