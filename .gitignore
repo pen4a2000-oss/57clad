@@ -1,0 +1,5 @@
+output/.parts/
+output/_test.mp4
+output/bed.wav
+episode1/voice/
+__pycache__/
