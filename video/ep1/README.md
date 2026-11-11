@@ -18,3 +18,6 @@ ffmpeg -i video_noaudio.mp4 -i sfx_music_norm.wav -c:v copy -c:a aac -b:a 192k -
 ## Версия с озвучкой
 - `ep1_s_ozvuchkoy.mp4` — 1:54 (113,9 сек), голос ElevenLabs Brian (модель Eleven v3), ускорен ×1,11. Музыка и эффекты под голосом приглушены.
 - `src/vo/` — абзацы озвучки (`p00–p21.wav`), их тексты (`paras.txt`) и тайминг (`timing.json`). Анимация подстраивается под реальную длину каждого абзаца.
+
+## Обложка
+- `oblozhka_ep1.png` — 1080×1920. Пересборка: `cd src && node cover.js`.
