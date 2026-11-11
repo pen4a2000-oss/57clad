@@ -76,7 +76,7 @@ SC.hookB=(t,L)=>{const lt=t-L.s,d=L.e-L.s;sky();city();
   txt('10 000 ₽',360,320,84,'#fff');poly(C.yellow,[340,370,380,370,380,400,410,400,360,450,310,400,340,400]);
   const v=Math.floor(lerp(10000,1000000,eio(prog(lt,0.4,d*0.6))));txt(v.toLocaleString('ru-RU').replace(/,/g,' ')+' ₽',360,500,64,'#5ef08f');
   outlined('365 ДНЕЙ',360,160,96,C.yellow);
-  hero(360,1170,1.15,{face:{look:[0,-1],fear:lt>d*0.7?0.8:0,mouth:lt>d*0.7?'o':'smile'}});banknote(300,860,0.7,-0.2);banknote(420,860,0.7,0.2);
+  hero(360,1170,1.15,{face:{look:[0,-1],fear:lt>d*0.7?0.8:0,mouth:lt>d*0.7?'o':'smile'}});banknote(318,950,0.6,-0.2);banknote(402,950,0.6,0.2);
   stamp('ИЛИ НАВСЕГДА',360,640,t,L.s+d*0.72,C.red,46);};
 SC.setup=(t,L)=>{const lt=t-L.s,d=L.e-L.s;
   if(lt<0.9){x.fillStyle=grad(0,H,'#1b2a4a','#0e1626');x.fillRect(0,0,W,H);const q=eio(lt/0.9);const yr=Math.round(lerp(2026,2009,q));
