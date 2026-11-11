@@ -58,11 +58,20 @@ add(8.4,r*(tr/d)**2,0.5)
 # ---------------- SFX
 add(0.0,boom(2.5,70,28),0.7)
 add(0.2,tone(1200,2.6,0.5,None,(1,))*0.0,0)
-for tm in np.arange(3.0,6.4,0.13):
-    if rs.random()<0.6: add(tm+rs.random()*0.1,click(0.04,9000),0.25,pan=rs.uniform(-.5,.5))
-# electric zap 5.0-6.2
-tz=tt(1.2); zap=np.sign(np.sin(2*np.pi*95*tz))*0.5+filt(noise(1.2),2000,8000)*0.5; add(5.0,zap*np.sin(np.pi*tz/1.2),0.22)
-add(8.6,click(0.03,4000),0.6)
+for tm in np.arange(3.0,4.2,0.13):
+    if rs.random()<0.6: add(tm+rs.random()*0.1,click(0.04,9000),0.2,pan=rs.uniform(-.5,.5))
+# power-up hum + success chime
+d=1.2; tp=tt(d); add(4.2,np.sin(2*np.pi*np.cumsum(60+240*tp/d)/SR)*np.interp(tp,[0,0.8,1.2],[0,1,0.6]),0.25)
+for k,f in enumerate((523.25,659.25,783.99)): add(4.4+k*0.12,tone(f,0.6,0.005,0.25,(1,2)),0.12)
+add(6.5,click(0.03,4000),0.7)
+# malfunction: zap + crackle + alarm
+tz=tt(0.9); zap=np.sign(np.sin(2*np.pi*95*tz))*0.5+filt(noise(0.9),2000,8000)*0.5; add(7.0,zap*np.sin(np.pi*tz/0.9),0.35)
+add(7.0,boom(0.8,200,60),0.5)
+for tm in np.arange(7.0,10.0,0.09):
+    if rs.random()<0.5: add(tm,click(0.03,9000),0.22,pan=rs.uniform(-.6,.6))
+for tm in np.arange(7.4,10.0,0.5): add(tm,tone(880,0.22,0.005,None,(1,3)),0.07)
+for tm in np.arange(7.8,10.0,0.07):
+    if rs.random()<0.5: add(tm,tone(rs.uniform(300,2400),0.05,0.002),0.05)
 add(10.0,boom(3,120,30),1.0); add(10.0,filt(noise(1.5),500,12000)*env(int(1.5*SR),0.001,0.4),0.5)
 # wind fall
 d=2.8; w=filt(noise(d),400,2500)*np.linspace(0.2,1,int(d*SR)); add(11.8,w,0.35)
