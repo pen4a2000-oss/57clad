@@ -6,7 +6,7 @@
 @font-face{font-family:M;font-weight:700;src:url(m700.woff2) format('woff2');unicode-range:U+0400-045F;}
 html,body{margin:0;background:#000}canvas{display:block}
 </style></head><body>
-<canvas id="c" width="720" height="1280"></canvas>
+<canvas id="c" width="1080" height="1920"></canvas>
 <script>
 const W=720,H=1280,c=document.getElementById('c'),x=c.getContext('2d',{willReadFrequently:true});
 const TM=__TIMING__;
@@ -43,7 +43,7 @@ function face(cx,cy,R,o={}){
     if(o.hair==='bun'){ell(hc,0,-R*0.55,R*0.92,R*0.55);circle(hc,0,-R*1.15,R*0.32);}
     else if(o.hair==='scarf'){x.fillStyle=o.hairC||'#7d2e2e';x.beginPath();x.ellipse(0,-R*0.2,R*1.05,R*1.0,0,Math.PI*0.95,Math.PI*2.05);x.fill();poly(o.hairC||'#7d2e2e',[-R*0.9,R*0.2,-R*1.05,R*0.9,-R*0.6,R*0.6]);poly(o.hairC||'#7d2e2e',[R*0.9,R*0.2,R*1.05,R*0.9,R*0.6,R*0.6]);}
     else{x.fillStyle=hc;x.beginPath();x.ellipse(0,-R*0.45,R*0.95,R*0.62,0,Math.PI,Math.PI*2);x.fill();
-      poly(hc,[-R*0.95,-R*0.45,-R*0.6,-R*0.05,-R*0.35,-R*0.5,0,-R*0.15,R*0.25,-R*0.5,R*0.6,-R*0.1,R*0.95,-R*0.45]);}}
+      poly(hc,[-R*0.95,-R*0.52,-R*0.95,-R*0.45,-R*0.6,-R*0.05,-R*0.35,-R*0.5,0,-R*0.15,R*0.25,-R*0.5,R*0.6,-R*0.1,R*0.95,-R*0.45,R*0.95,-R*0.52]);}}
   // eyes
   const wide=o.wide||1, lx=(o.look?o.look[0]:0)*R*0.08, ly=(o.look?o.look[1]:0)*R*0.06;
   const blink=o.blink?0.12:1;
@@ -354,11 +354,11 @@ sc(TM.endCard,999,(t)=>{const lt=t-TM.endCard;x.fillStyle='#07080c';x.fillRect(0
   x.fillStyle=C.red;x.font='900 22px M';x.fillText('ОСТАЛОСЬ ПРАВИЛ: 6',W/2,760);x.textAlign='left';x.restore();
   const g=0.5+0.5*Math.sin(t*3);circle(`rgba(255,255,255,${g})`,340,1000,5);circle(`rgba(255,255,255,${g})`,380,1000,5);});
 
-function render(t){T=t;shake=0;x.setTransform(1,0,0,1,0,0);x.globalAlpha=1;x.textAlign='left';x.setLineDash([]);
+function render(t){T=t;shake=0;x.setTransform(1.5,0,0,1.5,0,0);x.imageSmoothingQuality='high';x.globalAlpha=1;x.textAlign='left';x.setLineDash([]);
   const s=S.find(z=>t>=z.s&&t<z.e)||S[S.length-1];x.save();s.f(t);x.restore();
-  if(shake>0){const img=x.getImageData(0,0,W,H);const r=rng(Math.floor(t*60));x.fillStyle='#000';x.fillRect(0,0,W,H);x.putImageData(img,(r()-0.5)*shake*2,(r()-0.5)*shake*2)}
+  if(shake>0){const img=x.getImageData(0,0,c.width,c.height);const r=rng(Math.floor(t*60));x.fillStyle='#000';x.fillRect(0,0,W,H);x.putImageData(img,Math.round((r()-0.5)*shake*3),Math.round((r()-0.5)*shake*3))}
   x.fillStyle=rg(W/2,H/2,H*0.32,H*0.78,'rgba(0,0,0,0)','rgba(0,0,0,.55)');x.fillRect(0,0,W,H);
-  x.globalAlpha=1;x.drawImage(grain[Math.floor(t*24)%6],0,0,W,H);
+  x.globalAlpha=1;
   hud(t);captions(t);}
 window.render=render;
 window.ready=document.fonts.load('900 40px M','ПРАВИЛО').then(()=>document.fonts.load('700 20px M','Я'));
