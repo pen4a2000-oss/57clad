@@ -418,7 +418,8 @@ sc(92.8,95.2,(t,p)=>{rect('#0b0910',0,0,W,H);
 // S21 slide + BOOM
 sc(95.2,99.4,(t,p)=>{tombBG(0.45);const top=800;
   rect(C.stone,490,top-420,220,420);rect(C.stone2,490,top-20,220,20);
-  machine(500,840,0.9,0.3);
+  {const q=eo(prog(t,95.2,95.7));const mx=lerp(500,395,q),my=lerp(840,885,q);const g=0.5+0.5*Math.sin(t*9);
+   x.fillStyle=`rgba(46,196,182,${0.10+0.10*g})`;circle(x.fillStyle,mx,my-25,70);machine(mx,my,1.1,g);}
   if(t<97.4){const q=prog(t,95.6,97.3);person(lerp(330,620,eo(q)),880-Math.sin(q*Math.PI)*0,1.9,{shirt:C.hood,pants:C.jeans,cloak:C.linen,rot:-1.4*Math.min(1,q*3),walk:0});}
   if(t>=97.4){const b=prog(t,97.4,99.4);rect(C.stone,490,top-420+60,220,500);shake=b<0.3?26:b<0.6?8:0;
     x.fillStyle=`rgba(210,180,130,${1-b*0.8})`;x.fillRect(0,0,W,H);bigText('БУМ',H*0.42,140,'#fff',1-eo(b))}
@@ -460,7 +461,7 @@ sc(113.2,117.5,(t,p)=>{rect('#0b0910',0,0,W,H);
   const g=0.5+0.5*Math.sin(t*3);circle(`rgba(190,255,90,${g})`,250,1000,6);circle(`rgba(190,255,90,${g})`,280,1000,6);
 });
 
-function render(t){T=t;shake=0;x.setTransform(1,0,0,1,0,0);x.globalAlpha=1;x.textAlign='left';
+function render(tn){const t=tn<111.2?tn*113.2/111.2:113.2+(tn-111.2);T=t;shake=0;x.setTransform(1,0,0,1,0,0);x.globalAlpha=1;x.textAlign='left';
   const s=S.find(z=>t>=z.s&&t<z.e)||S[S.length-1];
   x.save();
   // pre-pass to get shake: draw once

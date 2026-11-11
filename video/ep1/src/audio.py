@@ -1,5 +1,7 @@
 import numpy as np, wave
-SR=44100; DUR=117.5; N=int(SR*DUR)
+SR=44100; DUR=113.5;
+def Wt(t): return t*111.2/113.2 if t<113.2 else 111.2+(t-113.2)
+N=int(SR*DUR)
 L=np.zeros(N); R=np.zeros(N)
 rs=np.random.default_rng(7)
 def tt(d): return np.arange(int(d*SR))/SR
@@ -10,7 +12,7 @@ def filt(sig,lo=0,hi=20000):
     if lo>0: m*=1/(1+(lo/np.maximum(f,1))**4)
     return np.fft.irfft(F*m,len(sig))
 def add(t0,sig,vol=1.0,pan=0.0):
-    i=int(t0*SR); j=min(N,i+len(sig)); 
+    i=int(Wt(t0)*SR); j=min(N,i+len(sig)); 
     if i>=N: return
     s=sig[:j-i]*vol; L[i:j]+=s*(1-max(0,pan)); R[i:j]+=s*(1+min(0,pan))
 def env(n,a=0.005,d=None):
@@ -34,7 +36,7 @@ def pluck(f,d=1.2):
 t=np.arange(N)/SR
 lfo=0.75+0.25*np.sin(2*np.pi*0.07*t)
 drone=(np.sin(2*np.pi*73.42*t)+0.5*np.sin(2*np.pi*110*t)+0.3*np.sin(2*np.pi*146.83*t+np.sin(2*np.pi*0.3*t)))*lfo
-dv=np.interp(t,[0,3,10,11.8,26,60,97.3,97.4,99.6,101,112,113.2,117.5],[0.05,0.08,0.10,0.12,0.12,0.13,0.15,0,0,0.08,0.10,0.06,0])
+dv=np.interp(t,[Wt(v) for v in [0,3,10,11.8,26,60,97.3,97.4,99.6,101,112,113.2,115.5]],[0.05,0.08,0.10,0.12,0.12,0.13,0.15,0,0,0.08,0.10,0.06,0.0])
 L+=drone*dv; R+=drone*dv
 # phrygian dominant on D3
 sc=[146.83,155.56,185.0,196.0,220.0,233.08,261.63,293.66]
