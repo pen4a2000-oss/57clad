@@ -1,6 +1,13 @@
 import numpy as np, wave
-SR=44100; DUR=113.5;
-def Wt(t): return t*111.2/113.2 if t<113.2 else 111.2+(t-113.2)
+import json
+TM=json.load(open('vo/timing.json'))
+SR=44100; DUR=TM['total'];
+_WN=[w[0] for w in TM['warp']]; _WO=[w[1] for w in TM['warp']]
+def Wt(t):
+    for i in range(1,len(_WO)):
+        if t<=_WO[i]:
+            return _WN[i] if _WO[i]==_WO[i-1] else _WN[i-1]+(_WN[i]-_WN[i-1])*(t-_WO[i-1])/(_WO[i]-_WO[i-1])
+    return _WN[-1]+(t-_WO[-1])
 N=int(SR*DUR)
 L=np.zeros(N); R=np.zeros(N)
 rs=np.random.default_rng(7)
@@ -36,7 +43,7 @@ def pluck(f,d=1.2):
 t=np.arange(N)/SR
 lfo=0.75+0.25*np.sin(2*np.pi*0.07*t)
 drone=(np.sin(2*np.pi*73.42*t)+0.5*np.sin(2*np.pi*110*t)+0.3*np.sin(2*np.pi*146.83*t+np.sin(2*np.pi*0.3*t)))*lfo
-dv=np.interp(t,[Wt(v) for v in [0,3,10,11.8,26,60,97.3,97.4,99.6,101,112,113.2,115.5]],[0.05,0.08,0.10,0.12,0.12,0.13,0.15,0,0,0.08,0.10,0.06,0.0])
+dv=np.interp(t,[Wt(v) for v in [0,3,10,11.8,26,60,97.3,97.4,99.6,101,112,113.2,115.49]],[0.05,0.08,0.10,0.12,0.12,0.13,0.15,0,0,0.08,0.10,0.06,0.0])
 L+=drone*dv; R+=drone*dv
 # phrygian dominant on D3
 sc=[146.83,155.56,185.0,196.0,220.0,233.08,261.63,293.66]
@@ -134,6 +141,18 @@ ir=rs.standard_normal(int(1.6*SR))*np.exp(-np.arange(int(1.6*SR))/(0.35*SR)); ir
 def conv(a): n=len(a)+len(ir); F=np.fft.rfft(a,n)*np.fft.rfft(ir,n); return np.fft.irfft(F,n)[:len(a)]
 L=L+0.18*conv(L); R=R+0.18*conv(R)
 st=np.stack([L,R],1); st=np.tanh(st*1.1); st/=np.abs(st).max()*1.05
+# ---- voiceover + ducking
+VO=np.zeros(N)
+for i,t0 in enumerate(TM['starts']):
+    with wave.open(f'vo/p{i:02d}.wav') as w:
+        a_=np.frombuffer(w.readframes(w.getnframes()),dtype='<i2').astype(float)/32768
+        if w.getnchannels()==2: a_=a_.reshape(-1,2).mean(1)
+    j=int(t0*SR); VO[j:j+len(a_)]+=a_[:max(0,N-j)]
+VO/=np.abs(VO).max()+1e-9
+k=int(0.25*SR); e=np.convolve(np.abs(VO),np.ones(k)/k,'same'); e=np.convolve((e>0.01).astype(float),np.ones(k)/k,'same')
+duck=1-0.6*e
+st=st*duck[:,None]*0.55+np.stack([VO,VO],1)*0.95
+st/=np.abs(st).max()*1.02
 with wave.open('sfx_music.wav','wb') as w:
     w.setnchannels(2);w.setsampwidth(2);w.setframerate(SR);w.writeframes((st*32767).astype('<i2').tobytes())
 print('ok')
