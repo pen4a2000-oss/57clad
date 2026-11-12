@@ -22,6 +22,6 @@ s=open('biz_tpl.html').read();i=s.index('function render(t)')
 s=s[:i]+open('coffee_common.js').read()+"\n"+open('coffee_scenes.js').read()+"\n"+open('coffee2_scenes.js').read()+"\n"+s[i:]
 old="x.save();SC[L.id](t,L);x.restore()"
 assert old in s
-s=s.replace(old,"x.save();{const nx=TM.lines[TM.lines.indexOf(L)+1];const d_=(nx?nx.s:TM.total)-L.s;const lt_=t-L.s;const z=1+0.05*eo(lt_/d_)+0.07*(1-eo(lt_/0.35));x.translate(360,620);x.scale(z,z);x.translate(-360,-620);}SC[L.id](t,L);x.restore()")
+s=s.replace(old,"x.save();{const nx=TM.lines[TM.lines.indexOf(L)+1];const d_=(nx?nx.s:TM.total)-L.s;const lt_=t-L.s;const z=1+0.04*eo(lt_/d_)+0.05*(1-eo(lt_/0.35));x.translate(360,360);x.scale(z,z);x.translate(-360,-360);}SC[L.id](t,L);x.restore()")
 s=s.replace('__HELPERS__',helpers).replace('__TIMING__',json.dumps(tm)).replace('__CAPS__',json.dumps(CAPS,ensure_ascii=False))
 open('coffee2.html','w').write(s);print(tm['total'])
