@@ -112,14 +112,57 @@ sc('boy',(t)=>{const lt=t-S('boy'),d=E('boy')-S('boy');screenSpace();x.drawImage
   x.fillStyle=rg(360,640,100,800,'rgba(0,0,0,0)','rgba(0,0,0,.5)');x.fillRect(0,0,W,H)});
 sc('wait',(t)=>{const lt=t-S('wait');screenSpace();x.drawImage(BG.wood,0,0,720,1280);const z=lerp(2.0,2.6,eo(lt/0.6));x.save();x.translate(360,700);x.scale(z,z);toon(0,180,1,{torso:'#c46a2c',hair:'spiky',hairC:'#d07a2c',mood:'wow'});x.restore();
   x.fillStyle=rg(360,500,60,700,'rgba(0,0,0,0)','rgba(0,0,0,.6)');x.fillRect(0,0,W,H)});
-sc('night',(t)=>{const lt=t-S('night'),d=E('night')-S('night');cam(450,900,1.35,0.4,'night');
-  stall3d(180,900,0.88,'#6a2a26','','',false,'back');
-  {const tx=540+eio(prog(lt,d*0.72,d))*520,sh=Math.sin(T*40)*1.5;truck(tx,1060+sh,0.85);for(let i=0;i<4;i++){const q=((T*1.2+i*0.25)%1);x.fillStyle=`rgba(200,200,210,${0.5*(1-q)})`;x.beginPath();x.arc(tx-200-q*60,1040-q*40,10+q*18,0,Math.PI*2);x.fill()}}
-  const hf=lt>d*0.5&&lt<d*0.75;toon(285,1080+bob(1),1.0,{torso:'#6b8f71',hair:'cap',capC:'#8c2f2f',mood:hf?'happy':'calm',armR:hf?[40,-200]:[50,-60],look:1});
-  toon(385,1080+bob(2),1.0,{torso:'#2f4a6e',hair:'side',hairC:'#7a3f1f',mood:hf?'happy':'smug',bow:true,armL:hf?[-40,-200]:[-50,-60],flip:true,look:1});
-  if(lt<d*0.5){x.save();x.translate(335,980-((lt*2)%1)*30);melon(0,0,22);x.restore()}
-  // moon
-  screenSpace();ell('rgba(255,250,220,.9)',580,180,34,34);x.fillStyle=rg(580,180,30,140,'rgba(255,250,220,.25)','rgba(255,250,220,0)');x.fillRect(440,40,280,280);dust();grade(true)});
+function truckBed(X,Y,s,load,signs,shake){x.save();x.translate(X,Y+(shake||0));x.scale(s,s);ell('rgba(0,0,0,.35)',-20,6,250,18);
+  // bed back wall
+  x.fillStyle='#7a5232';rr(-260,-150,300,30,6);x.fill();
+  // load inside bed
+  const pile=[[-220,-140],[-170,-140],[-120,-140],[-70,-140],[-20,-140],[-195,-180],[-145,-180],[-95,-180],[-45,-180],[-170,-215],[-120,-215],[-70,-215]];
+  for(let i=0;i<Math.min(load,pile.length);i++)melon(pile[i][0],pile[i][1],26);
+  if(signs){x.save();x.translate(-190,-250);x.rotate(-0.08);x.fillStyle='#1f2422';rr(-70,-40,140,80,6);x.fill();x.strokeStyle='#8a5d36';x.lineWidth=6;rr(-70,-40,140,80,6);x.stroke();txt('100 ₽',0,-6,34,'#f4f1e8');txt('за штуку',0,22,13,'#bbb','center',700);x.restore();
+    x.save();x.translate(-50,-260);x.rotate(0.06);x.fillStyle='#1f2422';rr(-75,-42,150,84,6);x.fill();x.strokeStyle='#8a5d36';x.lineWidth=6;rr(-75,-42,150,84,6);x.stroke();txt('300 ₽',0,-8,36,'#f4f1e8');txt('ОТБОРНЫЕ',0,22,13,'#ffd36b','center',700);x.restore()}
+  // bed front side panel
+  x.fillStyle=lg(0,-130,0,-40,[[0,'#a87444'],[1,'#7a5232']]);rr(-270,-130,320,90,8);x.fill();x.strokeStyle=INK;x.lineWidth=4;x.stroke();
+  x.strokeStyle='rgba(40,20,8,.45)';x.lineWidth=3;x.beginPath();x.moveTo(-270,-100);x.lineTo(50,-100);x.moveTo(-270,-70);x.lineTo(50,-70);x.stroke();
+  x.fillStyle='#2f7a52';rr(-230,-122,240,30,6);x.fill();txt('ФЕРМА «ЛУЧ»',-110,-106,20,'#fff');
+  // cab
+  x.fillStyle=lg(0,-200,0,-30,[[0,'#c0392b'],[1,'#8e2a20']]);rr(50,-200,150,170,16);x.fill();x.strokeStyle=INK;x.lineWidth=4;x.stroke();x.fillStyle='#bfe0ff';rr(90,-186,90,60,8);x.fill();x.stroke();
+  ell('#ffe9a8',196,-60,8,8);
+  for(const wx of [-190,-40,140]){ell(INK,wx,-30,32,32);ell('#8a8a8a',wx,-30,12,12)}x.restore()}
+function walker(t0,t1,trips,X0w,X1w,Y,o,carry){ // returns position & state for a back-and-forth carrier
+  if(T<t0)return {x:X0w,y:Y,st:false,c:false};
+  if(T>t1)return {x:X1w,y:Y,st:false,c:false,done:true};
+  const per=(t1-t0)/trips;const k=Math.floor((T-t0)/per);const ph=((T-t0)%per)/per;
+  const going=ph<0.55;const q=going?eio(ph/0.55):eio((ph-0.55)/0.45);const xx=going?lerp(X0w,X1w,q):lerp(X1w,X0w,q);
+  return {x:xx,y:Y-Math.abs(Math.sin(T*9))*3,st:true,c:going,k,ph}}
+sc('night',(t)=>{const lt=t-S('night');cam(400,880,1.6,0.4,'night');
+  const Wd=n=>{const w=WORDS.find(w=>w.text.toLowerCase().startsWith(n)&&w.start>=S('night')-0.1&&w.start<=E('night'));return w?w.start:S('night')};
+  const tClose=Wd('закрыва'),tLoad=Wd('грузят'),tOne=Wd('один'),tGo=Wd('уезжа'),tBiz=Wd('общий');
+  // stalls at the back: lights go out on "закрывается"
+  const lightOn=T<tClose+0.2;
+  x.save();x.translate(0,0);stall3d(150,860,0.62,'#6a2a26',T<tOne?'100 ₽':'','',false,'back');stall3d(345,860,0.62,'#245a3c',T<tOne?'300 ₽':'','ОТБОРНЫЕ',true,'back');
+  stall3d(150,860,0.62,'#6a2a26',T<tOne?'100 ₽':'',T<tOne?'за штуку':'',false,'front');stall3d(345,860,0.62,'#245a3c',T<tOne?'300 ₽':'',T<tOne?'ОТБОРНЫЕ':'',true,'front');x.restore();
+  if(!lightOn){x.fillStyle='rgba(5,8,30,.35)';x.fillRect(0,600,720,330)}
+  // truck: load grows with trips, signs after "один грузовик", drives off on "уезжают"
+  const tripsDone=T<tLoad?0:Math.min(12,Math.floor((T-tLoad)/((tOne-tLoad)/3))*2+2);
+  const drive=eio(prog(T,tGo+0.2,tGo+1.8));const tx=500+drive*520;const sh=T>tGo-0.3?Math.sin(T*40)*1.6:0;
+  if(T<tBiz){truckBed(tx,975,0.62,T<tLoad?0:Math.min(12,tripsDone),T>tOne+0.3,sh);
+    if(T>tGo-0.3)for(let i=0;i<5;i++){const q=((T*1.4+i*0.2)%1);x.fillStyle=`rgba(200,200,215,${0.5*(1-q)})`;x.beginPath();x.arc(tx-170-q*60,960-q*30,8+q*14,0,Math.PI*2);x.fill()}}
+  // carriers
+  if(T<tGo){
+    const g=walker(tLoad,tOne+0.4,3,250,375,1005,{},true);const a=walker(tLoad+0.25,tOne+0.55,3,300,420,1030,{},true);
+    const carryG=g.c&&T<tOne,carryA=a.c&&T<tOne;
+    const signG=T>=tOne&&T<tOne+0.6,signA=T>=tOne&&T<tOne+0.6;
+    toon(g.x,g.y,0.9,{torso:'#6b8f71',hair:'cap',capC:'#8c2f2f',mood:T>tOne?'happy':'calm',step:g.st?T*9:undefined,armL:carryG||signG?[-22,-238]:[-38,-82],armR:carryG||signG?[22,-238]:[38,-82],look:g.c?1:-1});
+    if(carryG){x.save();x.translate(g.x,g.y-0.9*262);melon(0,0,22);x.restore()}
+    toon(a.x,a.y,0.9,{torso:'#2f4a6e',hair:'side',hairC:'#7a3f1f',mood:T>tOne?'happy':'smug',bow:true,step:a.st?T*9+1:undefined,armL:carryA||signA?[-22,-238]:[-38,-82],armR:carryA||signA?[22,-238]:[38,-82],look:a.c?1:-1});
+    if(carryA){x.save();x.translate(a.x,a.y-0.9*262);melon(0,0,22);x.restore()}
+    if(T<tLoad){screenSpace();}
+  }
+  screenSpace();ell('rgba(255,250,220,.9)',600,170,30,30);x.fillStyle=rg(600,170,26,130,'rgba(255,250,220,.25)','rgba(255,250,220,0)');x.fillRect(470,40,260,260);
+  // "общий бизнес": close-up of the truck bed with both signs
+  if(T>=tBiz){x.fillStyle='#0d1030';x.fillRect(0,0,W,H);const z=lerp(1.0,1.08,prog(T,tBiz,E('night')+0.25));x.save();x.translate(360,700);x.scale(1.6*z,1.6*z);truckBed(110,140,1,12,true,0);x.restore();
+    x.font='900 40px M';x.textAlign='center';x.fillStyle='#ffd36b';x.shadowColor='rgba(0,0,0,.9)';x.shadowBlur=12;x.fillText('ОДИН БИЗНЕС',360,300);x.shadowBlur=0;x.textAlign='left'}
+  dust();grade(true)});
 sc('see',(t)=>{const lt=t-S('see'),d=E('see')-S('see');cam(360,760,1.0,0.4);screenSpace();x.fillStyle='rgba(10,6,2,.45)';x.fillRect(0,0,W,H);chalk();
   chalkText('ЦЕНА АРБУЗА = ?',360,320,40,'#ffd36b');
   const p1=prog(lt,d*0.25,d*0.4),p2=prog(lt,d*0.62,d*0.8);
@@ -151,9 +194,9 @@ sc('truck',(t)=>{const lt=t-S('truck'),d=E('truck')-S('truck');screenSpace();x.f
   x.fillStyle='#2a2a33';x.fillRect(0,0,W,180);x.fillRect(0,640,W,H-640);x.fillStyle='rgba(120,160,220,.12)';x.fillRect(40,180,640,460);x.strokeStyle='#14141a';x.lineWidth=26;x.strokeRect(40,180,640,460);
   const sh=Math.sin(T*30)*2;
   toon(220,1200+sh,2.1,{torso:'#6b8f71',hair:'cap',capC:'#8c2f2f',mood:lt>d*0.4?'happy':'calm',armL:[-40,-110],armR:[40,-110]});
-  toon(510,1200+sh,2.1,{torso:'#2f4a6e',hair:'side',hairC:'#7a3f1f',mood:'smug',bow:true,armL:[-60,-90],armR:[-20,-100],flip:true});
+  toon(510,1200+sh,2.1,{torso:'#2f4a6e',hair:'side',hairC:'#7a3f1f',mood:'smug',bow:true,armL:[-30,-60],armR:[30,-60],flip:true,look:1});
   x.save();x.translate(220,960+sh);x.scale(1.4,1.4);for(let i=0;i<4;i++){x.fillStyle='#7fbf6a';rr(-36+i*3,-10-i*6,72,20,3);x.fill();x.strokeStyle='#4a7a3c';x.lineWidth=2;x.stroke()}x.restore();
-  x.strokeStyle='#14141a';x.lineWidth=14;x.beginPath();x.arc(560,1030,90,0,Math.PI*2);x.stroke();
+  x.fillStyle=lg(0,1090,0,1280,[[0,'#3a3a46'],[1,'#22222a']]);x.fillRect(0,1090,W,190);x.fillStyle='rgba(255,210,120,.6)';rr(120,1120,60,20,6);x.fill();rr(560,1120,60,20,6);x.fill();
   if(lt>d*0.35){x.fillStyle='#fffaf0';rr(70,250,440,120,24);x.fill();poly('#fffaf0',[180,365,220,365,200,410]);txt('«ВСЕГО 5 АРБУЗОВ.',290,290,28,INK);txt('ОТЛИЧНЫЙ ДЕНЬ!»',290,335,30,'#2f7a52')}
   x.fillStyle=rg(360,640,200,800,'rgba(0,0,0,0)','rgba(0,0,0,.55)');x.fillRect(0,0,W,H);dust()});
 sc('cta',(t)=>{const lt=t-S('cta'),d=E('cta')-S('cta');const q=eio(prog(lt,0,d));cam(360,lerp(720,660,q),lerp(1.12,1.02,q));market({shuffle:true});dust();grade();screenSpace();
